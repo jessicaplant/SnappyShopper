@@ -1,0 +1,26 @@
+### Create a new store
+
+POST {{host}}/store
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "Happy Takeaway 2000",
+    "lat": "-1.4237857249",
+    "long": "0",
+    "state": "open",
+    "type": "takeaway",
+    "max_delivery_distance": "300"
+}
+
+### Fail to create a new store
+
+POST {{host}}/store
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "Happy Takeaway 2000",
+    "lat": "-1.4237857249",
+    "long": "0"
+}
