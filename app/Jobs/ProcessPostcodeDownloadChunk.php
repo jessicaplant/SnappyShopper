@@ -18,7 +18,7 @@ class ProcessPostcodeDownloadChunk implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private const CHUNK_SIZE = 5000;
+    private const CHUNK_SIZE = 10000;
     private const TRANSACTION_RETRY_COUNT = 10;
 
     /**
@@ -35,13 +35,13 @@ class ProcessPostcodeDownloadChunk implements ShouldQueue
             ->chunk(self::CHUNK_SIZE)
             ->each(function ($value) {
                 DB::transaction(function () use ($value) {
-                    collect($value)->each(function ($row, $value) {
-                        Postcode::create([
-                            'postcode' => $row['pcd'],
-                            'lat' => $row['lat'],
-                            'long' => $row['long'],
-                        ]);
-                    });
+                    $data = collect($value)->select([
+                        'pcd',
+                        'lat',
+                        'long',
+                    ])->all();
+
+                    DB::table('postcodes')->insert($data);
                 }, self::TRANSACTION_RETRY_COUNT);
 
                 Log::info('Processed a chunk...');

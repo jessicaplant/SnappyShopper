@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('postcodes', function (Blueprint $table) {
             $table->id();
-            $table->string('postcode', 64);
+            $table->string('pcd', 64);
             $table->decimal('lat', 10, 7);
             $table->decimal('long', 10, 7);
             $table->timestamps();
