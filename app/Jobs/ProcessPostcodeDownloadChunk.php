@@ -2,14 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Models\Postcode;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\LazyCollection;
 use League\Csv\Reader;
@@ -24,14 +22,22 @@ class ProcessPostcodeDownloadChunk implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($file)
+    public function __construct(
+        private readonly string $file
+    )
+    {}
+
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
     {
+        $postcodeReader = Reader::createFromPath($this->file);
+        $postcodeReader->setHeaderOffset(0);
+
         ini_set('memory_limit', '-1');
 
-        $postcodes = Reader::createFromPath($file);
-        $postcodes->setHeaderOffset(0);
-
-        $postcodesCollection = LazyCollection::make($postcodes->getRecords())
+        LazyCollection::make($postcodeReader->getRecords())
             ->chunk(self::CHUNK_SIZE)
             ->each(function ($value) {
                 DB::transaction(function () use ($value) {
@@ -46,13 +52,5 @@ class ProcessPostcodeDownloadChunk implements ShouldQueue
 
                 Log::info('Processed a chunk...');
             });
-    }
-
-    /**
-     * Execute the job.
-     */
-    public function handle(): void
-    {
-        //
     }
 }

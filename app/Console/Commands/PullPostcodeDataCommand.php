@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\ProcessPostcodeDownloadChunk;
+use App\Models\Postcode;
 use Illuminate\Support\Facades\File;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -19,7 +20,7 @@ class PullPostcodeDataCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:pull-postcode-data-command';
+    protected $signature = 'app:pull-postcode-data-command {--truncate-postcodes=false}';
 
     /**
      * The console command description.
@@ -52,10 +53,11 @@ class PullPostcodeDataCommand extends Command
         $zip = new ZipArchive();
 
         if ($zip->open(storage_path(self::FILENAME))) {
-            $zip->extractTo(storage_path(self::EXTRACTION_PATH));
-            $zip->close();
+//            $zip->extractTo(storage_path(self::EXTRACTION_PATH));
 
             $files = File::files(storage_path(self::EXTRACTED_MULTI_CSV_PATH));
+
+            Postcode::truncate();
 
             /**
              * I decided to use the multi-csv option they give you as many smaller jobs in transactions feels
@@ -64,17 +66,19 @@ class PullPostcodeDataCommand extends Command
             foreach ($files as $file) {
                 if ($file->getExtension() === 'csv') {
                     $this->info('Dispatching a job to parse a chunk...');
-                    ProcessPostcodeDownloadChunk::dispatch($file);
+                    ProcessPostcodeDownloadChunk::dispatch($file->getRealPath());
                 }
             }
-
             return true;
         }
+
+        $zip->close();
 
         /**
          * Here we need some error handling...
          */
         $this->error('Unable to work with the downloaded zip file!');
+
         return false;
     }
 }
