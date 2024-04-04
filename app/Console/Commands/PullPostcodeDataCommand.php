@@ -48,12 +48,14 @@ class PullPostcodeDataCommand extends Command
             Http::sink(storage_path(self::FILENAME))->get(self::URL);
         }
 
-        $this->info('Preparing unpacking of Zip file...');
-
         $zip = new ZipArchive();
 
         if ($zip->open(storage_path(self::FILENAME))) {
-//            $zip->extractTo(storage_path(self::EXTRACTION_PATH));
+            if (File::isEmptyDirectory(storage_path(self::EXTRACTED_MULTI_CSV_PATH))) {
+                $this->info('Preparing unpacking of Zip file...');
+
+                $zip->extractTo(storage_path(self::EXTRACTION_PATH));
+            }
 
             $files = File::files(storage_path(self::EXTRACTED_MULTI_CSV_PATH));
 

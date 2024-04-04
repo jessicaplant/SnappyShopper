@@ -24,3 +24,9 @@ Accept: application/json
     "lat": "-1.4237857249",
     "long": "0"
 }
+
+### Get stores near postcode
+
+GET {{host}}/store?postcode=CH45-0LP&distance=50
+Content-Type: application/json
+Accept: application/json

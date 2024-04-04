@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Store;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 interface StoreManagementServiceInterface
 {

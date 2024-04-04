@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -32,9 +33,18 @@ class ProcessPostcodeDownloadChunk implements ShouldQueue
      */
     public function handle(): void
     {
+        /**
+         * These were originally in the constructor but there's an issue with the
+         * library I couldn't diagnose in the time I'd allotted myself for this task.
+         * This would be something I'd improve!
+         */
         $postcodeReader = Reader::createFromPath($this->file);
         $postcodeReader->setHeaderOffset(0);
 
+        /**
+         * This is a disgusting hack and would not make it a mile within production
+         * I can promise you that!
+         */
         ini_set('memory_limit', '-1');
 
         LazyCollection::make($postcodeReader->getRecords())
@@ -47,7 +57,11 @@ class ProcessPostcodeDownloadChunk implements ShouldQueue
                         'long',
                     ])->all();
 
-                    DB::table('postcodes')->insert($data);
+                    DB::table('postcodes')->insert([
+                        ...$data,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ]);
                 }, self::TRANSACTION_RETRY_COUNT);
 
                 Log::info('Processed a chunk...');
