@@ -8,6 +8,7 @@ use App\Http\Resources\StoreResource;
 use App\Http\Resources\StoreResourceCollection;
 use App\Services\StoreManagementServiceInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class StoreController extends Controller
 {
@@ -18,10 +19,12 @@ class StoreController extends Controller
         return new StoreResource($store);
     }
 
-    public function findMany(FindManyStoresRequest $request, StoreManagementServiceInterface $storeManagementService): StoreResourceCollection
+    public function findMany(FindManyStoresRequest $request, StoreManagementServiceInterface $storeManagementService)//: StoreResourceCollection
     {
-        $stores = $storeManagementService->findMany($request->validated());
+        $stores = $storeManagementService->findMany($request->input());
 
-        return new StoreResourceCollection($stores);
+        return $stores;
+
+//        return new StoreResourceCollection($stores);
     }
 }
