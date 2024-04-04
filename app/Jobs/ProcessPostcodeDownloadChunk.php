@@ -57,11 +57,7 @@ class ProcessPostcodeDownloadChunk implements ShouldQueue
                         'long',
                     ])->all();
 
-                    DB::table('postcodes')->insert([
-                        ...$data,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
-                    ]);
+                    DB::table('postcodes')->insert($data);
                 }, self::TRANSACTION_RETRY_COUNT);
 
                 Log::info('Processed a chunk...');

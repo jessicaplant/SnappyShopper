@@ -28,7 +28,16 @@ class StoreManagementService implements StoreManagementServiceInterface
      */
     public function findMany(array $parameters): Collection
     {
-        return collect([]);
+        /**
+         * We could use scopes here to make this a little tidier...
+         */
+        $stores = Store::where('state', $parameters['state'])
+            ->where('type', $parameters['type'])
+            ->get();
+
+        $postcode = Postcode::where('pcd', $parameters['postcode'])->get();
+
+        return $stores;
     }
 
     /**
@@ -53,6 +62,8 @@ class StoreManagementService implements StoreManagementServiceInterface
     }
 
     /**
+     * 
+     *
      * @param $latitudeFrom
      * @param $longitudeFrom
      * @param $latitudeTo

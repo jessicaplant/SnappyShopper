@@ -27,6 +27,6 @@ Accept: application/json
 
 ### Get stores near postcode
 
-GET {{host}}/store?postcode=CH45-0LP&distance=50
+GET {{host}}/store?postcode=CH45-0LP&distance=50&state=open&type=takeaway
 Content-Type: application/json
 Accept: application/json
